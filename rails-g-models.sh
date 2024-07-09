@@ -7,3 +7,8 @@ bundle exec rails g model manga author:references publisher:references category:
 # テーブルの作成
 bundle exec rails db:migrate
 
+# テーブルにサンプルデータ投入
+bundle exec rails db:seed
+
+# コントローラ作成
+bundle exec rails g controller Mangas index --helper=false --assets=false

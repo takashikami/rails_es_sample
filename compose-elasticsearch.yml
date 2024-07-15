@@ -1,0 +1,45 @@
+---
+volumes:
+  esdata:
+
+services:
+  elasticsearch:
+    build:
+      context: .
+      dockerfile: Dockerfile-elasticsearch
+    environment:
+      - "ES_JAVA_OPTS=-Xms4096m -Xmx4096m"
+      - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
+      - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - xpack.license.self_generated.type=basic
+    ports:
+      - 9200:9200
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          curl -u elastic:${ELASTIC_PASSWORD} -X POST
+          http://elasticsearch:9200/_security/user/kibana_system/_password
+          -d '{"password":"${KIBANA_PASSWORD}"}'
+          -H 'Content-Type: application/json'
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  kibana:
+    image: kibana:${STACK_VERSION}
+    environment:
+      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
+      - "ELASTICSEARCH_HOSTS=http://elasticsearch:9200"
+      - "ELASTICSEARCH_USERNAME=kibana_system"
+      - "ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}"
+      - xpack.security.enabled=false
+      - xpack.license.self_generated.type=basic
+    ports:
+      - 5601:5601
+    depends_on:
+      elasticsearch:
+        condition: service_healthy

@@ -4,6 +4,17 @@ class MangasController < ApplicationController
   end
 
   def index
-    @mangas = Manga.all
+    @mangas = if search_word.present? then
+                Manga.es_search(search_word).records
+              else
+                Manga.all
+              end
   end
+
+  private  # ========================================
+
+    def search_word
+      @search_word ||= params[:search_word]
+    end
+
 end

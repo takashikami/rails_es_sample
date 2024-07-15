@@ -1,5 +1,13 @@
 <h1>Mangas</h1>
 
+<div class="container">
+  <%= form_tag(mangas_path, method: :get) do %>
+    <%= text_field_tag :search_word, @search_word, class: "input", placeholder: "漫画を検索する" %>
+    <%= submit_tag "検索" %>
+  <% end %>
+</div>
+<br/>
+
 <table>
   <thead>
     <tr>
